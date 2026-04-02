@@ -50,31 +50,26 @@
     <h3 style="text-align:center; margin-bottom: 40px;">Sản phẩm nổi bật</h3>
     <div class="card-grid">
         <div class="card">
-            <img src="anhdauweb.jpg" alt="Dầu dừa ép lạnh">
-            <h4>Dầu dừa ép lạnh 100ml</h4>
-            <ul class="cong-dung">
-                <li>Dưỡng ẩm da toàn thân mượt mà.</li>
-                <li>Ủ tóc giảm gãy rụng và làm sạch gàu.</li>
-                <li>Tẩy trang nhẹ nhàng, sạch sâu.</li>
-            </ul>
-            <p class="price">150.000đ</p>
-            <a href="https://zalo.me/s/0373093177" class="btn-card">Đặt mua qua Zalo</a>
-        </div>
-
-        <div class="card">
-            <img src="daudua-duongmoi.jpg" alt="Dầu dừa dưỡng mi">
-            <h4>Dầu dừa dưỡng mi & môi</h4>
-            <ul class="cong-dung">
-                <li>Giúp mi dài và dày sau 2 tuần.</li>
-                <li>Dưỡng môi hồng, giảm thâm nứt.</li>
-                <li>Thiết kế dạng lăn cực tiện dụng.</li>
-            </ul>
-            <p class="price">80.000đ</p>
-            <a href="https://zalo.me/s/0373093177" class="btn-card">Đặt mua qua Zalo</a>
-        </div>
-    </div>
+    <img src="anhdauweb.jpg" alt="Dầu dừa">
+    <h4>Dầu dừa ép lạnh 100ml</h4>
+    <ul class="cong-dung">
+        <li>Dưỡng ẩm da toàn thân</li>
+        <li>Ủ tóc giảm gãy rụng</li>
+    </ul>
+    <p class="price" style="color: #e67e22; font-weight: bold; font-size: 1.2em;">150.000 VNĐ</p>
+    <button class="btn-hero" onclick="openPayment('Dầu dừa ép lạnh', 150000)" style="width: 100%; border: none; cursor: pointer; padding: 10px; border-radius: 5px;">Mua ngay</button>
 </div>
 
+<div class="card">
+    <img src="daudua-duongmoi.jpg" alt="Dưỡng mi">
+    <h4>Dầu dừa dưỡng mi & môi</h4>
+    <ul class="cong-dung">
+        <li>Giúp mi dài và dày</li>
+        <li>Dưỡng môi hồng tự nhiên</li>
+    </ul>
+    <p class="price" style="color: #e67e22; font-weight: bold; font-size: 1.2em;">80.000 VNĐ</p>
+    <button class="btn-hero" onclick="openPayment('Dưỡng mi & môi', 80000)" style="width: 100%; border: none; cursor: pointer; padding: 10px; border-radius: 5px;">Mua ngay</button>
+</div>
 <footer id="lien-he" style="text-align: center; padding: 40px; background: #f5f5f5; border-top: 1px solid #ddd; margin-top: 50px;">
     <div class="footer-content">
         <h3 style="color: var(--primary-color); margin-bottom: 10px;">COCO NATURAL</h3>
@@ -84,6 +79,55 @@
     </div>
 </footer>
 </footer>
+<div id="payment-modal" style="display:none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 25px; border-radius: 15px; box-shadow: 0 0 30px rgba(0,0,0,0.5); z-index: 1000; width: 300px; text-align: center; font-family: sans-serif;">
+    <h3 id="product-name" style="color: #5d4037; margin-bottom: 10px;">Tên sản phẩm</h3>
+    <div style="margin-bottom: 15px;">
+        <span>Số lượng: </span>
+        <input type="number" id="quantity" value="1" min="1" oninput="updateTotal()" style="width: 60px; padding: 5px; text-align: center; border: 1px solid #ccc; border-radius: 5px;">
+    </div>
+    <h4 style="margin: 10px 0;">Tổng tiền: <span id="total-price" style="color: #e67e22;">0</span> VNĐ</h4>
+    <div id="qr-area" style="margin-top: 15px; background: #f9f9f9; padding: 10px; border-radius: 10px;">
+        <img id="qr-image" src="" alt="QR" style="width: 100%; display: none;">
+        <p id="loading-text">Đang tạo mã QR...</p>
+    </div>
+    <button onclick="closePayment()" style="margin-top: 15px; width: 100%; padding: 10px; border: none; background: #5d4037; color: white; border-radius: 5px; cursor: pointer; font-weight: bold;">Đóng</button>
+</div>
 
-</body>
-</html>
+<div id="overlay" onclick="closePayment()" style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index: 999;"></div>
+
+<script>
+    let currentPrice = 0;
+    let currentProduct = "";
+
+    // Hàm mở bảng thanh toán
+    function openPayment(name, price) {
+        currentProduct = name;
+        currentPrice = price;
+        document.getElementById('product-name').innerText = name;
+        document.getElementById('quantity').value = 1;
+        document.getElementById('payment-modal').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+        updateTotal();
+    }
+
+    // Hàm tính tiền và hiện QR
+    function updateTotal() {
+        let qty = parseInt(document.getElementById('quantity').value) || 1;
+        let total = qty * currentPrice;
+        document.getElementById('total-price').innerText = total.toLocaleString('vi-VN');
+
+        // Link tạo QR (Thay số tài khoản của bạn tại đây)
+        let qrUrl = `https://img.vietqr.io/image/MB-0373093177-compact.png?amount=${total}&addInfo=Mua%20${encodeURIComponent(currentProduct)}`;
+        
+        let qrImg = document.getElementById('qr-image');
+        qrImg.src = qrUrl;
+        qrImg.style.display = 'inline-block';
+        document.getElementById('loading-text').style.display = 'none';
+    }
+
+    // Hàm đóng bảng
+    function closePayment() {
+        document.getElementById('payment-modal').style.display = 'none';
+        document.getElementById('overlay').style.display = 'none';
+    }
+</script>
